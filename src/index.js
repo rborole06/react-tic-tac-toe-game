@@ -51,9 +51,11 @@ class Board extends React.Component {
 class Game extends React.Component {
 	constructor(props) {
 		super(props);
+		// initialize squares and location values
 		this.state = {
 			history: [{
 				squares: Array(9).fill(null),
+				location: Array(9).fill(null),
 			}],
 			stepNumber: 0,
 			xIsNext: true,
@@ -61,22 +63,40 @@ class Game extends React.Component {
 	}
 
 	handleClick(i) {
+
+		// slice() function returns shallow copy of array into new array object
+		// We can udpate the array directly but to show history of move need to do this
+		// https://reactjs.org/tutorial/tutorial.html#why-immutability-is-important
+		
 		const history = this.state.history.slice(0, this.state.stepNumber + 1);
 		const current = history[history.length - 1];
 		const squares = current.squares.slice();
+
+		// ignore click event if winner is declared or clicked square is filled
 		if(calculateWinner(squares) || squares[i]) {
 			return;
 		}
+
+		// assign respective value(X or O) to clicked square accordingly
 		squares[i] = this.state.xIsNext ? 'X' : 'O';
+
+		const clickedLocation = getLocationOfMove(i);
+		const location = current.location.slice();
+		// assign location value which will be used during displaying move history
+		location[this.state.stepNumber] = clickedLocation[0]+','+clickedLocation[1];
+
+		// update states
 		this.setState({
 			history: history.concat([{
 				squares: squares,
+				location: location,
 			}]),
 			stepNumber: history.length,
 			xIsNext: !this.state.xIsNext,
 		});
 	}
 
+	// Jump to any previous move
 	jumpTo(step) {
 		this.setState({
 			stepNumber: step,
@@ -85,10 +105,10 @@ class Game extends React.Component {
 	}
 
 	render() {
-
 		const history = this.state.history;
 		const current = history[this.state.stepNumber];
 		const winner = calculateWinner(current.squares);
+		const location = current.location;
 
 		const moves = history.map((step, move) => {
 			const desc = move ? 
@@ -97,10 +117,11 @@ class Game extends React.Component {
 
 			return (
 				<li key={move}>
-					<button onClick={() => this.jumpTo(move)}>{desc}</button>
+					<button onClick={() => this.jumpTo(move)}>{desc} - {location[move-1]}</button>
 				</li>
 			);
 		});
+
 		let status;
 		if(winner) {
 			status = 'Winner: ' + winner;
@@ -130,6 +151,7 @@ ReactDom.render(
 	document.getElementById('root')
 );
 
+// calculate winner
 function calculateWinner(squares) {
 	const lines = [
 		[0, 1, 2],
@@ -149,4 +171,38 @@ function calculateWinner(squares) {
 		}
 	}
 	return null;
+}
+
+// get column and row of clicked square
+function getLocationOfMove(move) {
+	const location = [];
+	if(move === 0) {
+		location[0] = 1;
+		location[1] = 1;
+	} else if(move === 1) {
+		location[0] = 2;
+		location[1] = 1;
+	} else if(move === 2) {
+		location[0] = 3;
+		location[1] = 1;
+	} else if(move === 3) {
+		location[0] = 1;
+		location[1] = 2;
+	} else if(move === 4) {
+		location[0] = 2;
+		location[1] = 2;
+	} else if(move === 5) {
+		location[0] = 3;
+		location[1] = 2;
+	} else if(move === 6) {
+		location[0] = 1;
+		location[1] = 3;
+	} else if(move === 7) {
+		location[0] = 2;
+		location[1] = 3;
+	} else if(move === 8) {
+		location[0] = 3;
+		location[1] = 3;
+	}
+	return location;
 }
