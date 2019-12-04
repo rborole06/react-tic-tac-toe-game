@@ -110,14 +110,22 @@ class Game extends React.Component {
 		const winner = calculateWinner(current.squares);
 		const location = current.location;
 
+		const size = history.length
 		const moves = history.map((step, move) => {
 			const desc = move ? 
 				'Go to move #'+move:
 				'Go to game start';
 
+			// Bold the currently selected item in the move list.
+			// Inserted <span> deliberately below
+			// If you don't inserted any html tag, it gives error, need to check why it is like this.
+			const bold = ((move+1) === size) ?
+				<b>{desc} - {location[move-1]}</b> :
+				<span>{desc} - {location[move-1]}</span> ;
+
 			return (
 				<li key={move}>
-					<button onClick={() => this.jumpTo(move)}>{desc} - {location[move-1]}</button>
+					<button onClick={() => this.jumpTo(move)}>{bold}</button>
 				</li>
 			);
 		});
