@@ -16,6 +16,8 @@ function Square(props){
 }
 
 class Board extends React.Component {
+
+	// Render a square
 	renderSquare(i) {
 		return (
 			<Square 
@@ -25,24 +27,31 @@ class Board extends React.Component {
 		);
 	}
 
+	// Generate board to make squares
+	// To generate square board dynamically - https://blog.cloudboost.io/for-loops-in-react-render-no-you-didnt-6c9f4aa73778
+	generateSquareBoard() {
+
+		let table = [];
+		let index = 0;	// square index
+		for(let i=0; i<3; i++) {
+
+			let children = [];
+			for(let j=0; j<3; j++) {
+				children.push(this.renderSquare( index ))
+				index = index + 1;
+			}
+
+			table.push(<div className="board-row">{children}</div>);
+		}
+
+		return table
+	}
+
+	// Render board component
 	render() {
 		return(
 			<div>
-				<div className="board-row">
-					{this.renderSquare(0)}
-					{this.renderSquare(1)}
-					{this.renderSquare(2)}
-				</div>
-				<div className="board-row">
-					{this.renderSquare(3)}
-					{this.renderSquare(4)}
-					{this.renderSquare(5)}
-				</div>
-				<div className="board-row">
-					{this.renderSquare(6)}
-					{this.renderSquare(7)}
-					{this.renderSquare(8)}
-				</div>
+				{this.generateSquareBoard()}
 			</div>
 		);
 	}
@@ -104,6 +113,7 @@ class Game extends React.Component {
 		});
 	}
 
+	// Render game component
 	render() {
 		const history = this.state.history;
 		const current = history[this.state.stepNumber];
