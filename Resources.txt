@@ -2,3 +2,8 @@
 https://reactjs.org/tutorial/tutorial.html
 https://scotch.io/tutorials/build-a-custom-toggle-switch-with-react#toc-prerequisites
 http://devguides.io/redux/
+
+https://react-redux.js.org/using-react-redux/accessing-store
+https://codesandbox.io/s/92pm9n2kl4
+
+https://react-redux.js.org/introduction/basic-tutorial
