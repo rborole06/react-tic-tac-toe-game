@@ -6,6 +6,8 @@ import React, { Component } from 'react';
 import isBoolean from 'lodash/isBoolean';
 import isFunction from 'lodash/isFunction';
 import './index.css';
+import { connect } from 'react-redux';
+import { toggleswitch } from "../../redux/actions";
 
 class ToggleSwitch extends Component {
 	// initialize state of the toggleswitch component
@@ -31,9 +33,11 @@ class ToggleSwitch extends Component {
 	}
 
 	// This method will be triggered as a click event listener
-	toggleSwitch = evt => {
+	handleToggleSwitch = evt => {
 		evt.persist();
 		evt.preventDefault();
+
+		this.props.toggleswitch(this.state.enabled);
 
 		const { onClick, onStateChanged } = this.props;
 
@@ -74,9 +78,9 @@ class ToggleSwitch extends Component {
 		)
 
 		// Finally, render dom elements with appropriate props and classes
-		// Notice that we passed the `this.toggleSwitch` as click event listener on the switch
+		// Notice that we passed the `this.handleToggleSwitch` as click event listener on the switch
 		return (
-			<div className={switchClasses} onClick={this.toggleSwitch} {...restProps}>
+			<div className={switchClasses} onClick={this.handleToggleSwitch} {...restProps}>
 				<div className={togglerClasses}></div>
 			</div>
 		)
@@ -100,4 +104,7 @@ ToggleSwitch.propTypes = {
 	onStateChanged: PropTypes.func
 }
 
-export default ToggleSwitch;
+// 2nd argument to connect, is used for dispatching actions to the store
+// This lets you create functions that dispatch when called, and pass those functions as props to your component
+// In our case, toggleswitch is a function called in handleToggleSwitch, which in turn creates a action
+export default connect(null, { toggleswitch })(ToggleSwitch);

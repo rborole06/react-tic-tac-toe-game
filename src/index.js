@@ -1,7 +1,11 @@
 
+import "bootstrap/dist/css/bootstrap.min.css";
 import React from 'react';
 import ReactDom from 'react-dom';
 import './index.css';
+import Switch from './components/ToggleSwitch';
+import { Provider, connect } from 'react-redux';
+import store from "./redux/store";
 
 function Square(props){
 
@@ -20,15 +24,17 @@ class Board extends React.Component {
 	// Render a square
 	renderSquare(i) {
 		return (
-			<Square 
+			<Square key={i}
 				value={this.props.squares[i]}
 				onClick = {() => this.props.onClick(i)}
 			/>
 		);
 	}
 
-	// Generate board to make squares
-	// To generate square board dynamically - https://blog.cloudboost.io/for-loops-in-react-render-no-you-didnt-6c9f4aa73778
+	/*
+	Generate board to make squares
+	To generate square board dynamically - https://blog.cloudboost.io/for-loops-in-react-render-no-you-didnt-6c9f4aa73778
+	*/
 	generateSquareBoard() {
 
 		let table = [];
@@ -41,7 +47,7 @@ class Board extends React.Component {
 				index = index + 1;
 			}
 
-			table.push(<div className="board-row">{children}</div>);
+			table.push(<div key={i} className="board-row">{children}</div>);
 		}
 
 		return table
@@ -71,12 +77,14 @@ class Game extends React.Component {
 		}
 	}
 
+	// square click event handler
 	handleClick(i) {
 
-		// slice() function returns shallow copy of array into new array object
-		// We can udpate the array directly but to show history of move need to do this
-		// https://reactjs.org/tutorial/tutorial.html#why-immutability-is-important
-		
+		/*
+		slice() function returns shallow copy of array into new array object
+		We can udpate the array directly but we have to show move history
+		https://reactjs.org/tutorial/tutorial.html#why-immutability-is-important
+		*/
 		const history = this.state.history.slice(0, this.state.stepNumber + 1);
 		const current = history[history.length - 1];
 		const squares = current.squares.slice();
@@ -91,7 +99,7 @@ class Game extends React.Component {
 
 		const clickedLocation = getLocationOfMove(i);
 		const location = current.location.slice();
-		// assign location value which will be used during displaying move history
+		// assign location value
 		location[this.state.stepNumber] = clickedLocation[0]+','+clickedLocation[1];
 
 		// update states
@@ -105,7 +113,7 @@ class Game extends React.Component {
 		});
 	}
 
-	// Jump to any previous move
+	// Jump to any previous move state
 	jumpTo(step) {
 		this.setState({
 			stepNumber: step,
@@ -115,29 +123,74 @@ class Game extends React.Component {
 
 	// Render game component
 	render() {
+		let currentToggleState = this.props.currentToggleState;
 		const history = this.state.history;
-		const current = history[this.state.stepNumber];
-		const winner = calculateWinner(current.squares);
-		const location = current.location;
+		const current = history[this.state.stepNumber];				// get current state using stepNumber
+		const squares = current.squares;
+		const winner = calculateWinner(squares);
+		const historyLength = history.length;
+		let location = current.location;
 
-		const size = history.length
-		const moves = history.map((step, move) => {
-			const desc = move ? 
-				'Go to move #'+move:
-				'Go to game start';
+		/*
+		If currentToggleState is true then arrange locations in descending order
+		reverse() function is available but if array contains null values then it does not work as we expects
+		and that's why we reverse it maually as per requirement
+		*/
+		if(currentToggleState)
+		{
+			// get only not-null locations
+			location = location.filter(location => location != null);
+			// reverse them
+			var reverseLocation = location.reverse();
+			// create a new blank array and fill it with null values
+			var nullArray = Array(9 - reverseLocation.length);
+			nullArray.fill(null);
+			// concat above reversed locations
+			location = reverseLocation.concat(nullArray);
+		}
 
-			// Bold the currently selected item in the move list.
-			// Inserted <span> deliberately below
-			// If you don't inserted any html tag, it gives error, need to check why it is like this.
-			const bold = ((move+1) === size) ?
-				<b>{desc} - {location[move-1]}</b> :
-				<span>{desc} - {location[move-1]}</span> ;
+		// Generate move history using history stored in component state
+		const moves = history.map((step, index) => {
+			
+			let moveIndex;
+			let moveText;
+			let condition;
+			let locationIndex;
+
+			/*
+			If currentToggleState is true
+			then history and location should be traversed in descending order
+			and to traverse them likewise, manipulate required indexs accordingly
+			*/
+			if(currentToggleState)
+			{
+				moveIndex = historyLength-(index+1);
+				condition = (index !== (historyLength-1));
+				locationIndex = index;
+			}
+			else
+			{
+				moveIndex = index;
+				condition = index;
+				locationIndex = index-1;
+			}
+			moveText = condition ? 'Go to move #'+moveIndex : 'Go to game start';
+
+			/*
+			Bold the currently selected item in the move list.
+			Inserted <span> deliberately below
+			If you don't inserted any html tag, it gives error, need to check why it is like this.
+			*/
+			const bold = ((index+1) === historyLength) ?
+				<b>{moveText} - {location[locationIndex]}</b> :
+				<span>{moveText} - {location[locationIndex]}</span>;
 
 			return (
-				<li key={move}>
-					<button onClick={() => this.jumpTo(move)}>{bold}</button>
+				<li key={moveIndex}>
+					<button onClick={() => this.jumpTo(moveIndex)}>{bold}</button>
 				</li>
 			);
+			
 		});
 
 		let status;
@@ -151,7 +204,7 @@ class Game extends React.Component {
 			<div className="game">
 				<div className="game-board">
 					<Board
-						squares={current.squares}
+						squares={squares}
 						onClick={(i) => this.handleClick(i)}
 					/>
 				</div>
@@ -159,18 +212,43 @@ class Game extends React.Component {
 					<div>{ status }</div>
 					<ol>{ moves }</ol>
 				</div>
+				<div className="d-flex p-4 rounded float-right">
+					<Switch theme="default" className="d-flex" />
+					<span className="font-weight-light">Sort Move</span>
+				</div>
 			</div>
 		);
 	}
 }
 
+/*
+This function used for selecting required data from store and passed as first parameter to connect
+It is called every time store state changes
+*/
+function mapStateToProps(state) {
+	const { currentToggleState } = state;
+	return { currentToggleState };
+}
+
+// This function connects a React component to a Redux store
+Game = connect(mapStateToProps)(Game);
+
 ReactDom.render(
-	<Game />,
+	/*
+	Wrap main app (which should be your top-most component i.e. Game) inside <Provider>.
+	This lets your component see the store
+	*/
+	<Provider store={store}>
+		<Provider store={store}>
+			<Game />
+		</Provider>
+	</Provider>,
 	document.getElementById('root')
 );
 
 // calculate winner
 function calculateWinner(squares) {
+	// array of positions in squareborad on which basis winner can be declared
 	const lines = [
 		[0, 1, 2],
 		[3, 4, 5],
@@ -198,26 +276,26 @@ function getLocationOfMove(move) {
 		location[0] = 1;
 		location[1] = 1;
 	} else if(move === 1) {
-		location[0] = 2;
-		location[1] = 1;
-	} else if(move === 2) {
-		location[0] = 3;
-		location[1] = 1;
-	} else if(move === 3) {
 		location[0] = 1;
 		location[1] = 2;
+	} else if(move === 2) {
+		location[0] = 1;
+		location[1] = 3;
+	} else if(move === 3) {
+		location[0] = 2;
+		location[1] = 1;
 	} else if(move === 4) {
 		location[0] = 2;
 		location[1] = 2;
 	} else if(move === 5) {
-		location[0] = 3;
-		location[1] = 2;
-	} else if(move === 6) {
-		location[0] = 1;
-		location[1] = 3;
-	} else if(move === 7) {
 		location[0] = 2;
 		location[1] = 3;
+	} else if(move === 6) {
+		location[0] = 3;
+		location[1] = 1;
+	} else if(move === 7) {
+		location[0] = 3;
+		location[1] = 2;
 	} else if(move === 8) {
 		location[0] = 3;
 		location[1] = 3;
