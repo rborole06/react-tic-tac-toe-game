@@ -90,14 +90,14 @@ class Game extends React.Component {
 		const squares = current.squares.slice();
 
 		// ignore click event if winner is declared or clicked square is filled
-		if(calculateWinner(squares) || squares[i]) {
+		if(this.calculateWinner(squares) || squares[i]) {
 			return;
 		}
 
 		// assign respective value(X or O) to clicked square accordingly
 		squares[i] = this.state.xIsNext ? 'X' : 'O';
 
-		const clickedLocation = getLocationOfMove(i);
+		const clickedLocation = this.getLocationOfMove(i);
 		const location = current.location.slice();
 		// assign location value
 		location[this.state.stepNumber] = clickedLocation[0]+','+clickedLocation[1];
@@ -121,13 +121,70 @@ class Game extends React.Component {
 		});
 	}
 
+	// Calculate the winner
+	calculateWinner(squares) {
+		// array of positions in squareborad on which basis winner can be declared
+		const lines = [
+			[0, 1, 2],
+			[3, 4, 5],
+			[6, 7, 8],
+			[0, 3, 6],
+			[1, 4, 7],
+			[2, 5, 8],
+			[0, 4, 8],
+			[2, 4, 6],
+		];
+
+		for(let i = 0; i < lines.length; i++) {
+			const [a, b, c] = lines[i];
+			if(squares[a] && squares[a] === squares[b] && squares[a] === squares[c]) {
+				return squares[a];
+			}
+		}
+		return null;
+	}
+
+	// get column and row of clicked square
+	getLocationOfMove(move){
+		const location = [];
+		if(move === 0) {
+			location[0] = 1;
+			location[1] = 1;
+		} else if(move === 1) {
+			location[0] = 1;
+			location[1] = 2;
+		} else if(move === 2) {
+			location[0] = 1;
+			location[1] = 3;
+		} else if(move === 3) {
+			location[0] = 2;
+			location[1] = 1;
+		} else if(move === 4) {
+			location[0] = 2;
+			location[1] = 2;
+		} else if(move === 5) {
+			location[0] = 2;
+			location[1] = 3;
+		} else if(move === 6) {
+			location[0] = 3;
+			location[1] = 1;
+		} else if(move === 7) {
+			location[0] = 3;
+			location[1] = 2;
+		} else if(move === 8) {
+			location[0] = 3;
+			location[1] = 3;
+		}
+		return location;
+	}
+
 	// Render game component
 	render() {
 		let currentToggleState = this.props.currentToggleState;
 		const history = this.state.history;
 		const current = history[this.state.stepNumber];				// get current state using stepNumber
 		const squares = current.squares;
-		const winner = calculateWinner(squares);
+		const winner = this.calculateWinner(squares);
 		const historyLength = history.length;
 		let location = current.location;
 
@@ -246,59 +303,3 @@ ReactDom.render(
 	document.getElementById('root')
 );
 
-// calculate winner
-function calculateWinner(squares) {
-	// array of positions in squareborad on which basis winner can be declared
-	const lines = [
-		[0, 1, 2],
-		[3, 4, 5],
-		[6, 7, 8],
-		[0, 3, 6],
-		[1, 4, 7],
-		[2, 5, 8],
-		[0, 4, 8],
-		[2, 4, 6],
-	];
-
-	for(let i = 0; i < lines.length; i++) {
-		const [a, b, c] = lines[i];
-		if(squares[a] && squares[a] === squares[b] && squares[a] === squares[c]) {
-			return squares[a];
-		}
-	}
-	return null;
-}
-
-// get column and row of clicked square
-function getLocationOfMove(move) {
-	const location = [];
-	if(move === 0) {
-		location[0] = 1;
-		location[1] = 1;
-	} else if(move === 1) {
-		location[0] = 1;
-		location[1] = 2;
-	} else if(move === 2) {
-		location[0] = 1;
-		location[1] = 3;
-	} else if(move === 3) {
-		location[0] = 2;
-		location[1] = 1;
-	} else if(move === 4) {
-		location[0] = 2;
-		location[1] = 2;
-	} else if(move === 5) {
-		location[0] = 2;
-		location[1] = 3;
-	} else if(move === 6) {
-		location[0] = 3;
-		location[1] = 1;
-	} else if(move === 7) {
-		location[0] = 3;
-		location[1] = 2;
-	} else if(move === 8) {
-		location[0] = 3;
-		location[1] = 3;
-	}
-	return location;
-}
