@@ -16,9 +16,25 @@ Payload is part of transmitted data that is actual intended message.
 
 */
 
-import { TOGGLE_SWITCH } from "./actionTypes";
+import { TOGGLE_SWITCH, ASSIGN_WINNER, ASSIGN_WINNER_SQUARES, CHANGE_GAME_STATE } from "./actionTypes";
 
 export const toggleswitch = enabled => ({
 	type: TOGGLE_SWITCH,
 	payload: { enabled },
 });
+
+export const assignWinner = winner => ({
+	type: ASSIGN_WINNER,
+	payload: { winner },
+});
+
+export const assignWinnerSquares = winnerSquares => ({
+	type: ASSIGN_WINNER_SQUARES,
+	payload: { winnerSquares },
+});
+
+export const changeGameState = gameState => ({
+	type: CHANGE_GAME_STATE,
+	payload: { gameState },
+});
+

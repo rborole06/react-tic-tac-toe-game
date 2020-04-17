@@ -6,6 +6,7 @@ import './index.css';
 import Switch from './components/ToggleSwitch';
 import { Provider, connect } from 'react-redux';
 import store from "./redux/store";
+import { assignWinner, assignWinnerSquares, changeGameState } from "./redux/actions";
 
 function Square(props){
 
@@ -23,9 +24,8 @@ class Board extends React.Component {
 
 	// Render a square
 	renderSquare(i) {
-
 		let classString = "square";
-		if(this.props.winnerSquares[i] != null)
+		if(this.props.winnerSquares && this.props.winnerSquares[i] != null)
 			classString += " winner";
 
 		return (
@@ -96,7 +96,7 @@ class Game extends React.Component {
 		const squares = current.squares.slice();
 
 		// ignore click event if winner is declared or clicked square is filled
-		if(this.calculateWinner(squares) || squares[i]) {
+		if(this.props.winner || squares[i]) {
 			return;
 		}
 
@@ -117,6 +117,8 @@ class Game extends React.Component {
 			stepNumber: history.length,
 			xIsNext: !this.state.xIsNext,
 		});
+
+		this.calculateWinner(squares);
 	}
 
 	// Jump to any previous move state
@@ -144,22 +146,28 @@ class Game extends React.Component {
 		for(let i = 0; i < lines.length; i++) {
 			const [a, b, c] = lines[i];
 			if(squares[a] && squares[a] === squares[b] && squares[a] === squares[c]) {
+				this.props.assignWinner(squares[a]);
 
 				// store the three suares that caused to win
-				var winner = Array(9).fill(null);
-				winner[a] = a;
-				winner[b] = b;
-				winner[c] = c;
+				var winnerSquares = Array(9).fill(null);
+				winnerSquares[a] = a;
+				winnerSquares[b] = b;
+				winnerSquares[c] = c;
+				this.props.assignWinnerSquares(winnerSquares);
 
-				// store winner, X or 0
-				const result = [squares[a], winner];
+				this.props.changeGameState(true);
+				// store winner, X or 0 and winning squares in result
+				//const result = [squares[a], winner];
 				
 				// return the game result
-				return result;
+				//return result;
 
+			} else if(this.state.stepNumber === 8 && i === 7) {
+				console.log(this.state.stepNumber);
+				this.props.changeGameState(false);
 			}
 		}
-		return null;
+		//return null;
 	}
 
 	// get column and row of clicked square
@@ -202,10 +210,10 @@ class Game extends React.Component {
 		const history = this.state.history;
 		const current = history[this.state.stepNumber];				// get current state using stepNumber
 		const squares = current.squares;
-		const result = this.calculateWinner(squares);
-		const winner = (result != null) ? result[0] : null;
-		const winnerSquares = (result != null) ? result[1] : '';
-		console.log(winnerSquares);
+		//this.calculateWinner(squares);
+		//const winner = (result != null) ? result[0] : null;
+		//const winnerSquares = (result != null) ? result[1] : '';
+		//console.log(winnerSquares);
 		const historyLength = history.length;
 		let location = current.location;
 
@@ -272,10 +280,12 @@ class Game extends React.Component {
 		});
 
 		let status;
-		if(winner) {
-			status = 'Winner: ' + winner;
+		//console.log(this.props.winnerSquares);
+		if(this.props.winner) {
+			status = 'Winner: ' + this.props.winner;
 		} else {
-			status = 'Next Player: ' + (this.state.xIsNext ? 'X' : 'O');
+			//status = 'Next Player: ' + (this.state.xIsNext ? 'X' : 'O');
+			status = (this.props.gameWon == null) ? ('Next Player: ' + (this.state.xIsNext ? 'X' : 'O')) : 'Game Draw';
 		}
 
 		return (
@@ -283,7 +293,7 @@ class Game extends React.Component {
 				<div className="game-board">
 					<Board
 						squares={squares}
-						winnerSquares={winnerSquares}
+						winnerSquares={this.props.winnerSquares}
 						onClick={(i) => this.handleClick(i)}
 					/>
 				</div>
@@ -305,12 +315,12 @@ This function used for selecting required data from store and passed as first pa
 It is called every time store state changes
 */
 function mapStateToProps(state) {
-	const { currentToggleState } = state;
-	return { currentToggleState };
+	const { currentToggleState, winner, winnerSquares, gameWon } = state;
+	return { currentToggleState, winner, winnerSquares, gameWon };
 }
 
 // This function connects a React component to a Redux store
-Game = connect(mapStateToProps)(Game);
+Game = connect(mapStateToProps, {assignWinner, assignWinnerSquares, changeGameState})(Game);
 
 ReactDom.render(
 	/*
