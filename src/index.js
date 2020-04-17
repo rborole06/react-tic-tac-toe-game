@@ -146,9 +146,9 @@ class Game extends React.Component {
 		for(let i = 0; i < lines.length; i++) {
 			const [a, b, c] = lines[i];
 			if(squares[a] && squares[a] === squares[b] && squares[a] === squares[c]) {
+
 				this.props.assignWinner(squares[a]);
 
-				// store the three suares that caused to win
 				var winnerSquares = Array(9).fill(null);
 				winnerSquares[a] = a;
 				winnerSquares[b] = b;
@@ -156,18 +156,11 @@ class Game extends React.Component {
 				this.props.assignWinnerSquares(winnerSquares);
 
 				this.props.changeGameState(true);
-				// store winner, X or 0 and winning squares in result
-				//const result = [squares[a], winner];
-				
-				// return the game result
-				//return result;
 
 			} else if(this.state.stepNumber === 8 && i === 7) {
-				console.log(this.state.stepNumber);
 				this.props.changeGameState(false);
 			}
 		}
-		//return null;
 	}
 
 	// get column and row of clicked square
@@ -210,10 +203,6 @@ class Game extends React.Component {
 		const history = this.state.history;
 		const current = history[this.state.stepNumber];				// get current state using stepNumber
 		const squares = current.squares;
-		//this.calculateWinner(squares);
-		//const winner = (result != null) ? result[0] : null;
-		//const winnerSquares = (result != null) ? result[1] : '';
-		//console.log(winnerSquares);
 		const historyLength = history.length;
 		let location = current.location;
 
@@ -280,11 +269,9 @@ class Game extends React.Component {
 		});
 
 		let status;
-		//console.log(this.props.winnerSquares);
 		if(this.props.winner) {
 			status = 'Winner: ' + this.props.winner;
 		} else {
-			//status = 'Next Player: ' + (this.state.xIsNext ? 'X' : 'O');
 			status = (this.props.gameWon == null) ? ('Next Player: ' + (this.state.xIsNext ? 'X' : 'O')) : 'Game Draw';
 		}
 

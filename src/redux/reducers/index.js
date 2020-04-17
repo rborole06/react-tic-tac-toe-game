@@ -42,7 +42,6 @@ export default function(state= initialState, action) {
 
 		case CHANGE_GAME_STATE: {
 			const { gameState } = action.payload;
-			console.log(gameState)
 			return {
 				...state,
 				gameWon: gameState
