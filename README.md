@@ -2,4 +2,4 @@ This project was bootstrapped with [Create React App](https://github.com/faceboo
 
 Game Screenshot
 
-![Image of Yaktocat](https://github.com/rborole06/react-tic-tac-toe-game/blob/master/public/assets/images/tictactoe.png)
+![tictactoe](https://github.com/rborole06/react-tic-tac-toe-game/blob/master/public/assets/images/tictactoe.png)
