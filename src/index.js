@@ -249,7 +249,7 @@ class Game extends React.Component {
 				condition = index;
 				locationIndex = index-1;
 			}
-			moveText = condition ? 'Go to move #'+moveIndex : 'Go to game start';
+			moveText = condition ? 'Go to move #'+moveIndex+' - ' : 'Go to game start';
 
 			/*
 			Bold the currently selected item in the move list.
@@ -257,12 +257,12 @@ class Game extends React.Component {
 			If you don't inserted any html tag, it gives error, need to check why it is like this.
 			*/
 			const bold = ((index+1) === historyLength) ?
-				<b>{moveText} - {location[locationIndex]}</b> :
-				<span>{moveText} - {location[locationIndex]}</span>;
+				<b>{moveText} {location[locationIndex]}</b> :
+				<span>{moveText} {location[locationIndex]}</span>;
 
 			return (
-				<li key={moveIndex}>
-					<button onClick={() => this.jumpTo(moveIndex)}>{bold}</button>
+				<li class="move-li" key={moveIndex}>
+					<button class="btn btn-outline-info" onClick={() => this.jumpTo(moveIndex)}>{bold}</button>
 				</li>
 			);
 			
@@ -270,27 +270,37 @@ class Game extends React.Component {
 
 		let status;
 		if(this.props.winner) {
-			status = 'Winner: ' + this.props.winner;
+			status = 'Winner - ' + this.props.winner;
 		} else {
-			status = (this.props.gameWon == null) ? ('Next Player: ' + (this.state.xIsNext ? 'X' : 'O')) : 'Game Draw';
+			status = (this.props.gameWon == null) ? ('Next Player - ' + (this.state.xIsNext ? 'X' : 'O')) : 'Game Draw';
 		}
 
 		return (
-			<div className="game">
-				<div className="game-board">
+			<div className="game container-fluid">
+				<div className="game-info col-md-3 align-self-center">
+					<div>{ status }</div>
+					
+				</div>
+				<div className="game-board col-md-4">
 					<Board
 						squares={squares}
 						winnerSquares={this.props.winnerSquares}
 						onClick={(i) => this.handleClick(i)}
 					/>
 				</div>
-				<div className="game-info">
-					<div>{ status }</div>
-					<ol>{ moves }</ol>
-				</div>
-				<div className="d-flex p-4 rounded float-right">
-					<Switch theme="default" className="d-flex" />
-					<span className="font-weight-light">Sort Move</span>
+				<div className="col-md-4">
+					<div className="switch">
+						<div className="switch-child">
+							<Switch theme="default" className="d-flex" />
+							
+						</div>
+						<div className="switch-child">
+							<h2>Sort Move</h2>
+						</div>
+					</div>
+					<div class="moves">
+						<ol> { moves } </ol>
+					</div>
 				</div>
 			</div>
 		);
