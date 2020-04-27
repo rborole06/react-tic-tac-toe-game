@@ -17,7 +17,7 @@ ol, ul {
 	padding-top: 100px;
 }
 
-.board-row : after {
+.board-row:after {
 	clear : both;
 	content : "";
 	display : table;
